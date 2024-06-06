@@ -51,9 +51,9 @@ var querySQLPath string
 func init() {
 	rootCmd.AddCommand(dumpCmd)
 	dumpCmd.Flags().StringVarP(&querySQL, "sql", "s", "", "SQL query")
-	dumpCmd.Flags().StringVarP(&querySQLPath, "sql-path", "p", "", "Path to sql query")
-	dumpCmd.MarkFlagsOneRequired("sql", "sql-path")
+	dumpCmd.Flags().StringVarP(&querySQLPath, "sql-file", "f", "", "Path to sql query")
+	dumpCmd.MarkFlagsOneRequired("sql", "sql-file")
 
 	dumpCmd.Flags().StringVarP(&dataworksVarsArg, "dataworks-vars", "v", "", "Variables in json")
-	dumpCmd.Flags().StringVarP(&dataworksVarsPath, "dataworks-vars-path", "d", "", "Path to variables file in YAML")
+	dumpCmd.Flags().StringVarP(&dataworksVarsPath, "dataworks-vars-file", "d", "", "Path to variables file in YAML")
 }

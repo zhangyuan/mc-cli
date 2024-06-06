@@ -2,6 +2,8 @@
 
 ## Usage
 
+### Setup the credentials
+
 Create the `.env` file with the sample content as below:
 
 ```env
@@ -12,4 +14,34 @@ If multiple SQL statements will be executed, `odps.sql.submit.mode=script` must 
 
 ```env
 DSN=http://ACCESS_KEY_ID:ACCESS_KEY_SECRET@service.cn-beijing.maxcompute.aliyun.com/api?project=project_name&odps.sql.submit.mode=script
+```
+
+### Query the data via single SQL
+
+```bash
+./mc-helper query -s "SELECT 1"
+```
+
+or use the SQL from file:
+
+```bash
+./mc-helper query -f sample.sql
+```
+
+Variables in the same style as Dataworks ODPS node are supported via `--dataworks-vars|-v` or `dataworks-vars-file|-d`. E.g.
+
+```bash
+./mc-helper query -f sample.sql -d sample.yaml
+```
+
+### Execute SQL statement(s)
+
+```bash
+./mc-helper exec -f sample.sql
+```
+
+or 
+
+```bash
+./mc-helper exec -f sample.sql -d sample.yaml
 ```

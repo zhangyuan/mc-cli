@@ -52,8 +52,8 @@ func init() {
 	rootCmd.AddCommand(executeCmd)
 
 	executeCmd.Flags().StringVarP(&execSQL, "sql", "s", "", "SQL statement(s)")
-	executeCmd.Flags().StringVarP(&execSQLPath, "sql-path", "p", "", "Path to sql statement(s)")
-	executeCmd.MarkFlagsOneRequired("sql", "sql-path")
+	executeCmd.Flags().StringVarP(&execSQLPath, "sql-file", "f", "", "Path to sql statement(s)")
+	executeCmd.MarkFlagsOneRequired("sql", "sql-file")
 
 	executeCmd.Flags().StringVarP(&dataworksVarsArg, "dataworks-vars", "v", "", "Variables in json")
 	executeCmd.Flags().StringVarP(&dataworksVarsPath, "dataworks-vars-path", "d", "", "Path to variables file in YAML")
