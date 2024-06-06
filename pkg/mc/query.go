@@ -48,7 +48,10 @@ Loop:
 			if err := writer.Write(data); err != nil {
 				return err
 			}
-		case err := <-errChan:
+		case err, ok := <-errChan:
+			if !ok {
+				break Loop
+			}
 			return err
 		}
 	}
