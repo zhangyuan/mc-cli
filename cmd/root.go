@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 
 	"github.com/pkg/errors"
@@ -32,15 +31,15 @@ func getFromJsonOrFile(varsArg string, varsPath string) (map[string]interface{},
 	if len(varsArg) > 0 {
 		err := json.Unmarshal([]byte(varsArg), &vars)
 		if err != nil {
-			return nil, errors.Errorf("Invalid vars: %v", err)
+			return nil, errors.Errorf("Invalid json: %v", err)
 		}
 	} else if len(varsPath) > 0 {
 		varsBytes, err := os.ReadFile(varsPath)
 		if err != nil {
-			return nil, errors.Errorf("Invalid vars file: %v", err)
+			return nil, errors.Errorf("Invalid json file: %v", err)
 		}
 		if err := yaml.Unmarshal(varsBytes, &vars); err != nil {
-			log.Fatalln(errors.Errorf("Invalid vars file: %v", err))
+			return nil, errors.Errorf("Invalid json file: %v", err)
 		}
 	}
 
@@ -51,7 +50,7 @@ func getFromStringOrFile(content string, filePath string) (string, error) {
 	if content == "" {
 		bytes, err := os.ReadFile(filePath)
 		if err != nil {
-			return "", errors.Errorf("Invalid SQL file: %v", err)
+			return "", errors.Errorf("Invalid string file: %v", err)
 		}
 		content = string(bytes)
 	}

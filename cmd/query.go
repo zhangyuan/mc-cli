@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var dumpCmd = &cobra.Command{
+var queryCmd = &cobra.Command{
 	Use:   "query",
 	Short: "Query data from MaxCompute",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -69,13 +69,13 @@ var querySQLPath string
 var format string
 
 func init() {
-	rootCmd.AddCommand(dumpCmd)
-	dumpCmd.Flags().StringVarP(&querySQL, "sql", "s", "", "SQL query")
-	dumpCmd.Flags().StringVarP(&querySQLPath, "sql-file", "f", "", "Path to sql query")
-	dumpCmd.MarkFlagsOneRequired("sql", "sql-file")
+	rootCmd.AddCommand(queryCmd)
+	queryCmd.Flags().StringVarP(&querySQL, "sql", "s", "", "SQL query")
+	queryCmd.Flags().StringVarP(&querySQLPath, "sql-file", "f", "", "Path to sql query")
+	queryCmd.MarkFlagsOneRequired("sql", "sql-file")
 
-	dumpCmd.Flags().StringVarP(&dataworksVarsArg, "dataworks-vars", "v", "", "Variables in json")
-	dumpCmd.Flags().StringVarP(&dataworksVarsPath, "dataworks-vars-file", "d", "", "Path to variables file in YAML")
+	queryCmd.Flags().StringVarP(&dataworksVarsArg, "dataworks-vars", "v", "", "Variables in json")
+	queryCmd.Flags().StringVarP(&dataworksVarsPath, "dataworks-vars-file", "d", "", "Path to variables file in YAML")
 
-	dumpCmd.Flags().StringVar(&format, "format", "table", "Format: csv, table")
+	queryCmd.Flags().StringVar(&format, "format", "table", "Format: csv, table")
 }

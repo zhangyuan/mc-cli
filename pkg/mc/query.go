@@ -15,15 +15,43 @@ type Row struct {
 }
 
 func (client *Client) Sql2csv(dsn string, query string, dataworkVars map[string]interface{}, writer *csv.Writer) error {
-	return client.Query(dsn, query, dataworkVars, func(columnNames []string) error {
-		return writer.Write(columnNames)
-	}, func(row []any) error {
-		values := make([]string, len(row))
-		for idx := range row {
-			values[idx] = fmt.Sprintf("%v", row[idx])
+	dataChan := make(chan []string, 100)
+	errChan := make(chan error, 1)
+
+	go func() {
+		if err := client.Query(dsn, query, dataworkVars, func(columnNames []string) error {
+			dataChan <- columnNames
+			return nil
+		}, func(row []any) error {
+			values := make([]string, len(row))
+			for idx := range row {
+				values[idx] = fmt.Sprintf("%v", row[idx])
+			}
+			dataChan <- values
+			return nil
+		}); err != nil {
+			errChan <- err
 		}
-		return writer.Write(values)
-	})
+		close(errChan)
+		close(dataChan)
+	}()
+
+Loop:
+	for {
+		select {
+		case data, ok := <-dataChan:
+			if !ok {
+				break Loop
+			}
+			if err := writer.Write(data); err != nil {
+				return err
+			}
+		case err := <-errChan:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (client *Client) Sql2Table(dsn string, query string, dataworkVars map[string]interface{}, writer table.Writer) error {
@@ -66,22 +94,17 @@ func (client *Client) Query(dsn string,
 		return err
 	}
 
-	isHeader := true
-	columnCount := 0
+	columns, err := rows.Columns()
+	if err != nil {
+		return err
+	}
+
+	columnCount := len(columns)
+	if err := onHeaderFunc(columns); err != nil {
+		return err
+	}
+
 	for rows.Next() {
-		if isHeader {
-			columns, err := rows.Columns()
-			if err != nil {
-				return err
-			}
-
-			columnCount = len(columns)
-			if err := onHeaderFunc(columns); err != nil {
-				return err
-			}
-			isHeader = false
-		}
-
 		var record = make([]interface{}, columnCount)
 		var recordPointer = make([]any, columnCount)
 		for idx := range record {
