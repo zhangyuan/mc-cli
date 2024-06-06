@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"log"
-	"mc-helper/pkg/mc"
+	"mc-cli/pkg/mc"
 	"os"
 
 	"github.com/joho/godotenv"

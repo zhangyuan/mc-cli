@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"mc-helper/pkg/mc"
+	"mc-cli/pkg/mc"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/joho/godotenv"

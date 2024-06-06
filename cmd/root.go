@@ -10,7 +10,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "mc-helper",
+	Use:   "mc-cli",
 	Short: "MC Helper",
 	// Run: func(cmd *cobra.Command, args []string) { },
 }

@@ -1,4 +1,4 @@
-# mc-helper
+# mc-cli
 
 ## Usage
 
@@ -19,29 +19,29 @@ DSN=http://ACCESS_KEY_ID:ACCESS_KEY_SECRET@service.cn-beijing.maxcompute.aliyun.
 ### Query the data via single SQL
 
 ```bash
-./mc-helper query -s "SELECT 1"
+./mc-cli query -s "SELECT 1"
 ```
 
 or use the SQL from file:
 
 ```bash
-./mc-helper query -f sample.sql
+./mc-cli query -f sample.sql
 ```
 
 Variables in the same style as Dataworks ODPS node are supported via `--dataworks-vars|-v` or `dataworks-vars-file|-d`. E.g.
 
 ```bash
-./mc-helper query -f sample.sql -d sample.yaml
+./mc-cli query -f sample.sql -d sample.yaml
 ```
 
 ### Execute SQL statement(s)
 
 ```bash
-./mc-helper exec -f sample.sql
+./mc-cli exec -f sample.sql
 ```
 
 or 
 
 ```bash
-./mc-helper exec -f sample.sql -d sample.yaml
+./mc-cli exec -f sample.sql -d sample.yaml
 ```

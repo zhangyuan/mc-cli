@@ -1,5 +1,5 @@
 /.env
 .vscode/
-/mc-helper
+/mc-cli
 /bin
 /tmp
