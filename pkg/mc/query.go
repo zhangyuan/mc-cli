@@ -7,57 +7,51 @@ import (
 	"time"
 )
 
-type Record struct {
+type Row struct {
 	Error   error
 	Content []string
 }
 
 func (client *Client) Sql2csv(dsn string, query string, dataworkVars map[string]interface{}, csvWriter *csv.Writer) error {
-	rowChan := make(chan Record, 100)
-	go client.Query(dsn, query, dataworkVars, rowChan)
-
-	for {
-		if row, ok := <-rowChan; ok {
-			if row.Error != nil {
-				return row.Error
-			}
-
-			if err := csvWriter.Write(row.Content); err != nil {
-				return err
-			}
-		} else {
-			break
+	if err := client.Query(dsn, query, dataworkVars, func(columnNames []string) error {
+		return csvWriter.Write(columnNames)
+	}, func(row []any) error {
+		values := make([]string, len(row))
+		for idx := range row {
+			values[idx] = fmt.Sprintf("%v", row[idx])
 		}
+		return csvWriter.Write(values)
+	}); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (client *Client) Query(dsn string, query string, dataworkVars map[string]interface{}, dataChan chan Record) {
+func (client *Client) Query(dsn string,
+	query string,
+	dataworkVars map[string]interface{},
+	onHeaderFunc func(columNames []string) error,
+	onRowFunc func(values []any) error,
+) error {
 	if !strings.HasSuffix(strings.TrimSpace(query), ";") {
 		query = query + ";"
 	}
 
 	sql, err := CompileTemplate(query, dataworkVars)
 	if err != nil {
-		dataChan <- Record{Error: err}
-		close(dataChan)
-		return
+		return err
 	}
 
 	rows, err := client.DB.Query(sql)
 	if err != nil {
-		dataChan <- Record{Error: err}
-		close(dataChan)
-		return
+		return err
 	}
 	defer rows.Close()
 
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
-		dataChan <- Record{Error: err}
-		close(dataChan)
-		return
+		return err
 	}
 
 	isHeader := true
@@ -66,14 +60,13 @@ func (client *Client) Query(dsn string, query string, dataworkVars map[string]in
 		if isHeader {
 			columns, err := rows.Columns()
 			if err != nil {
-				dataChan <- Record{Error: err}
-				close(dataChan)
-				return
+				return err
 			}
 
 			columnCount = len(columns)
-
-			dataChan <- Record{Content: columns}
+			if err := onHeaderFunc(columns); err != nil {
+				return err
+			}
 			isHeader = false
 		}
 
@@ -84,12 +77,10 @@ func (client *Client) Query(dsn string, query string, dataworkVars map[string]in
 		}
 
 		if err := rows.Scan(recordPointer...); err != nil {
-			dataChan <- Record{Error: err}
-			close(dataChan)
-			return
+			return err
 		}
 
-		csvRow := make([]string, columnCount)
+		csvRow := make([]any, columnCount)
 
 		for idx := range record {
 			columValue := record[idx]
@@ -108,12 +99,12 @@ func (client *Client) Query(dsn string, query string, dataworkVars map[string]in
 				}
 				continue
 			}
-
-			csvRow[idx] = fmt.Sprintf("%v", columValue)
+			csvRow[idx] = record[idx]
 		}
 
-		dataChan <- Record{Content: csvRow}
+		if err := onRowFunc(csvRow); err != nil {
+			return err
+		}
 	}
-
-	close(dataChan)
+	return nil
 }
