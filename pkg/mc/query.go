@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 type Row struct {
@@ -12,20 +14,30 @@ type Row struct {
 	Content []string
 }
 
-func (client *Client) Sql2csv(dsn string, query string, dataworkVars map[string]interface{}, csvWriter *csv.Writer) error {
-	if err := client.Query(dsn, query, dataworkVars, func(columnNames []string) error {
-		return csvWriter.Write(columnNames)
+func (client *Client) Sql2csv(dsn string, query string, dataworkVars map[string]interface{}, writer *csv.Writer) error {
+	return client.Query(dsn, query, dataworkVars, func(columnNames []string) error {
+		return writer.Write(columnNames)
 	}, func(row []any) error {
 		values := make([]string, len(row))
 		for idx := range row {
 			values[idx] = fmt.Sprintf("%v", row[idx])
 		}
-		return csvWriter.Write(values)
-	}); err != nil {
-		return err
-	}
+		return writer.Write(values)
+	})
+}
 
-	return nil
+func (client *Client) Sql2Table(dsn string, query string, dataworkVars map[string]interface{}, writer table.Writer) error {
+	return client.Query(dsn, query, dataworkVars, func(columnNames []string) error {
+		row := make([]interface{}, len(columnNames))
+		for idx := range columnNames {
+			row[idx] = columnNames[idx]
+		}
+		writer.AppendHeader(row)
+		return nil
+	}, func(row []any) error {
+		writer.AppendRow(row)
+		return nil
+	})
 }
 
 func (client *Client) Query(dsn string,
