@@ -13,24 +13,23 @@ type CsvRow struct {
 	Content []string
 }
 
-func Sql2csv(dsn string, query string) error {
-	db, err := NewDB(dsn)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
+func (client *Client) Sql2csv(dsn string, query string, dataworkVars map[string]interface{}) error {
 	if !strings.HasSuffix(strings.TrimSpace(query), ";") {
 		query = query + ";"
 	}
 
-	rows, err := db.Query(query)
+	sql, err := CompileTemplate(query, dataworkVars)
+	if err != nil {
+		return err
+	}
+
+	rows, err := client.DB.Query(sql)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
-	data := make(chan CsvRow, 1000)
+	data := make(chan CsvRow, 100)
 
 	csvWriter := csv.NewWriter(os.Stdout)
 	defer csvWriter.Flush()
