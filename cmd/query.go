@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"encoding/csv"
 	"log"
 	"os"
 
 	"mc-helper/pkg/mc"
 
 	"github.com/joho/godotenv"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -39,14 +41,21 @@ var dumpCmd = &cobra.Command{
 		}
 		defer client.Close()
 
-		if err := client.Sql2csv(dsn, sql, vars); err != nil {
-			log.Fatalln(err.Error())
+		if format == "csv" {
+			csvWriter := csv.NewWriter(os.Stdout)
+			defer csvWriter.Flush()
+			if err := client.Sql2csv(dsn, sql, vars, csvWriter); err != nil {
+				log.Fatalln(err.Error())
+			}
+		} else {
+			log.Fatalln(errors.Errorf("Invalid format: %v", format))
 		}
 	},
 }
 
 var querySQL string
 var querySQLPath string
+var format string
 
 func init() {
 	rootCmd.AddCommand(dumpCmd)
@@ -56,4 +65,6 @@ func init() {
 
 	dumpCmd.Flags().StringVarP(&dataworksVarsArg, "dataworks-vars", "v", "", "Variables in json")
 	dumpCmd.Flags().StringVarP(&dataworksVarsPath, "dataworks-vars-file", "d", "", "Path to variables file in YAML")
+
+	dumpCmd.Flags().StringVar(&format, "format", "csv", "Format: csv")
 }
