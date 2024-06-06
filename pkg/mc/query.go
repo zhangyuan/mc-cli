@@ -14,6 +14,8 @@ type Row struct {
 	Content []string
 }
 
+var nilValue = "NULL"
+
 func (client *Client) Sql2csv(dsn string, query string, dataworkVars map[string]interface{}, writer *csv.Writer) error {
 	dataChan := make(chan []string, 100)
 	errChan := make(chan error, 1)
@@ -120,7 +122,7 @@ func (client *Client) Query(dsn string,
 		for idx := range record {
 			columValue := record[idx]
 			if columValue == nil {
-				csvRow[idx] = ""
+				csvRow[idx] = nilValue
 				continue
 			}
 
