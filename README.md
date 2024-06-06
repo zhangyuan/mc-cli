@@ -16,7 +16,7 @@ If multiple SQL statements will be executed, `odps.sql.submit.mode=script` must 
 DSN=http://ACCESS_KEY_ID:ACCESS_KEY_SECRET@service.cn-beijing.maxcompute.aliyun.com/api?project=project_name&odps.sql.submit.mode=script
 ```
 
-### Query the data via single SQL
+### Query the data via single SQL statement
 
 ```bash
 ./mc-cli query -s "SELECT 1"
