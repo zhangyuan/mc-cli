@@ -3,7 +3,6 @@ package mc
 import (
 	"encoding/csv"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -79,9 +78,7 @@ func (client *Client) Query(dsn string,
 	onHeaderFunc func(columNames []string) error,
 	onRowFunc func(values []any) error,
 ) error {
-	if !strings.HasSuffix(strings.TrimSpace(query), ";") {
-		query = query + ";"
-	}
+	query = query + ";"
 
 	sql, err := CompileTemplate(query, dataworkVars)
 	if err != nil {
