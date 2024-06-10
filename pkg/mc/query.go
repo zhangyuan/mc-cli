@@ -32,8 +32,8 @@ func (client *Client) Sql2csv(dsn string, query string, dataworkVars map[string]
 			return nil
 		}); err != nil {
 			errChan <- err
+			close(errChan)
 		}
-		close(errChan)
 		close(dataChan)
 	}()
 
